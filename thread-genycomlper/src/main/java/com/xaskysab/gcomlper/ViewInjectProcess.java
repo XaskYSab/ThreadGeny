@@ -74,8 +74,8 @@ public class ViewInjectProcess extends AbstractProcessor {
 
             String pn = getPn(typeElement);
 
-            String nc = typeElement.getSimpleName().toString() + "_NEW";
-            String nfc = pn + "." + nc ;
+            String nc = typeElement.getSimpleName().toString() + "_";
+            String nfc = pn + "." + nc;
 
             Writer writer = filer.createSourceFile(nfc).openWriter();
 
@@ -85,7 +85,7 @@ public class ViewInjectProcess extends AbstractProcessor {
             export.add(" android.os.Looper");
             export.add(" com.xaskysab.gcomlper.ThreadGeny");
 
-            writeImport(writer, pn, export, nc+ " extends " + typeElement.asType().toString());
+            writeImport(writer, pn, export, nc + " extends " + typeElement.asType().toString());
             writeStartBody(writer);
 
             for (ExecutableElement executableElement : tmap.get(typeElement)) {
@@ -108,8 +108,8 @@ public class ViewInjectProcess extends AbstractProcessor {
 
     private void writeNewThread(Writer writer, TypeElement type, ExecutableElement executable) throws IOException {
 
-        writer.write(String.format("public %s %s", executable.getReturnType().toString(),
-                executable.getSimpleName()));
+
+        writer.write(String.format("public " + executable.getReturnType().toString() + " " + executable.getSimpleName()));
         writer.write("(");
 
 
@@ -134,26 +134,19 @@ public class ViewInjectProcess extends AbstractProcessor {
 
         if (executable.getReturnType().toString().equals("void")) {
 
-            writer.write( String.format("  AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {\n" +
-                    "            @Override\n" +
-                    "            public void run() {" +
-                    "                %s_NEW.super.%s(" + pa + ");\n" +
-                    "                   }\n" +
-                    "        });", type.getSimpleName().toString(), executable.getSimpleName()));
+            writer.write("  AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() { @Override" + "  public void run() {" +
+                    "                " + type.getSimpleName().toString() + "_.super." + executable.getSimpleName() + "(" + pa + ");" +
+                    "                   }" +
+                    "        });");
 
 
         } else {
-            writer.write( String.format("try {\n" +
-                    "          return  new AsyncTask<Void,Void,%s>(){\n" +
-                    "                @Override\n" +
-                    "                protected %s doInBackground(Void... params) {\n" +
-                    "                    return  %s_NEW.super.%s(" + pa + ");\n" +
-                    "                }\n" +
-                    "            }.execute().get();\n" +
-                    "        } catch (Exception e) {\n" +
-                    "            e.printStackTrace();\n" +
-                    "              return null;\n" +
-                    "        }",executable.getReturnType().toString(),executable.getReturnType().toString(), type.getSimpleName().toString(), executable.getSimpleName()));
+            writer.write("try {" + " return  new AsyncTask<Void,Void," + executable.getReturnType().toString() + ">(){" +
+                    " @Override " + " protected " + executable.getReturnType().toString() + " doInBackground(Void... params) {" +
+                    " return  " + type.getSimpleName().toString() + "_.super." + executable.getSimpleName() + "(" + pa + ");" + "   }" +
+                    "            }.execute().get();" + "        } catch (Exception e) {" +
+                    "   e.printStackTrace();" + " return null;" +
+                    "     }");
         }
 
         writeEndBody(writer);
@@ -161,8 +154,7 @@ public class ViewInjectProcess extends AbstractProcessor {
 
     private void writeMainMethod(Writer writer, TypeElement type, ExecutableElement executable) throws IOException {
 
-        writer.write(String.format("public %s %s", executable.getReturnType().toString(),
-                executable.getSimpleName()));
+        writer.write("public " + executable.getReturnType().toString() + " " + executable.getSimpleName());
         writer.write("(");
 
         String pa = "";
@@ -185,13 +177,11 @@ public class ViewInjectProcess extends AbstractProcessor {
         }
 
         if (executable.getReturnType().toString().equals("void")) {
-            writer.write( String.format("Runnable _runnable = new Runnable() {" +
-                    "            @Override" +
-                    "            public void run() {" +
-                    "                %s_NEW.super.%s(" + pa + ");" +
+            writer.write("Runnable _runnable = new Runnable() {" +
+                    "            @Override " + "public void run() {" + type.getSimpleName().toString() + "_.super." + executable.getSimpleName() + "(" + pa + ");" +
                     "            }" +
-                    "        };", type.getSimpleName().toString(), executable.getSimpleName()));
-            writer.write( String.format("ThreadGeny.run(_runnable);"));
+                    "        };");
+            writer.write("ThreadGeny.run(_runnable);");
 
         } else {
 
@@ -205,19 +195,18 @@ public class ViewInjectProcess extends AbstractProcessor {
     }
 
 
-
     private void writeImport(Writer writer, String pn, List<String> importClass, String nc) throws IOException {
-        writer.write( String.format("package %s ;", pn));
+        writer.write("package " + pn + " ;");
 
         for (String importCls : importClass) {
-            writer.write( String.format("import %s;", importCls));
+            writer.write("import " + importCls + ";");
         }
-        writer.write( String.format("public  class %s", nc));
+        writer.write("public class " + nc);
     }
 
     private void writeStartBody(Writer writer) throws IOException {
 
-        writer.write( "{");
+        writer.write("{");
     }
 
 
@@ -258,7 +247,7 @@ public class ViewInjectProcess extends AbstractProcessor {
 
     private void writeEndBody(Writer writer) throws IOException {
 
-        writer.write( " }");
+        writer.write(" }");
 
     }
 
