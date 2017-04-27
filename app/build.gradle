@@ -14,17 +14,12 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
 
-repositories {
-    flatDir {
-        dirs 'libs' //this way we can find the .aar file in libs folder
-    }
-}
 
 
 dependencies {
@@ -39,5 +34,5 @@ dependencies {
     compile project(':thread-genyannotation')
     apt project(':thread-genycomlper')
     compile project(':thread-genyhandle')
-//    compile(name:'cthreadlib-release', ext:'aar')
+
 }
